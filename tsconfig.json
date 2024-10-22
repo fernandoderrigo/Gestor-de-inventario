@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // O el target que prefieras
+    "module": "CommonJS",
+    "outDir": "./dist", // El directorio de salida para los archivos compilados
+    "rootDir": "./src", // El directorio raíz de tus archivos fuente
+    "strict": true, // Habilita la verificación estricta
+    "esModuleInterop": true // Para permitir la importación de módulos CommonJS
+  },
+  "include": ["src/**/*"], // Incluye todos los archivos en la carpeta src
+  "exclude": ["node_modules"] // Excluye la carpeta node_modules
+}
