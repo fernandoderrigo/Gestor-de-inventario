@@ -7,6 +7,13 @@ class ProductNotFoundError extends Error {
     }
 }
 
+class OutOfStockError extends Error {
+    constructor(name: string) {
+        super(`El producto "${name}" está agotado.`);
+        this.name = "OutOfStockError";
+    }
+}
+
 const inventory: Product[] = [
     [1, "Chocolate con Leche", 1.99, 50],
     [2, "Chocolate Amargo", 2.49, 30],
@@ -52,6 +59,17 @@ const saveButton = document.getElementById("saveButton") as HTMLButtonElement;
 
 let currentProductId: number | null = null;
 
+function findProduct(inventory: Product[], id: number): Product {
+    const product = inventory.find(p => p[0] === id);
+    if (!product) {
+        throw new ProductNotFoundError(id);
+    }
+    if (product[3] === 0) {
+        throw new OutOfStockError(product[1]);
+    }
+    return product;
+}
+
 function displayProduct(product: Product): void {
     resultList.innerHTML = "";
     const li = document.createElement("li");
@@ -59,7 +77,7 @@ function displayProduct(product: Product): void {
     li.innerHTML = `
         <p><strong>ID:</strong> ${product[0]}</p>
         <p><strong>Nombre:</strong> ${product[1]}</p>
-        <p><strong>Precio:</strong> $${product[2]}</p>
+        <p><strong>Precio:</strong> $${product[2].toFixed(2)}</p>
         <p><strong>Cantidad:</strong> ${product[3]}</p>
     `;
     resultList.appendChild(li);
@@ -81,7 +99,7 @@ function displayAllProducts(products: Product[]): void {
         li.innerHTML = `
             <p><strong>ID:</strong> ${product[0]}</p>
             <p><strong>Nombre:</strong> ${product[1]}</p>
-            <p><strong>Precio:</strong> $${product[2]}</p>
+            <p><strong>Precio:</strong> $${product[2].toFixed(2)}</p>
             <p><strong>Cantidad:</strong> ${product[3]}</p>
         `;
         productList.appendChild(li);
@@ -89,16 +107,23 @@ function displayAllProducts(products: Product[]): void {
     allProductsBox.classList.remove("hidden");
 }
 
+// Registrar operaciones de búsqueda
+function logSearchOperation(success: boolean, productId: number): void {
+    const logMessage = success 
+        ? `Búsqueda exitosa para el producto ID: ${productId}`
+        : `Búsqueda fallida para el producto ID: ${productId}`;
+    console.log(logMessage);
+}
+
 searchButton.addEventListener("click", () => {
     const productId = (document.getElementById("productId") as HTMLInputElement).valueAsNumber;
     try {
-        const product = inventory.find(p => p[0] === productId);
-        if (!product) {
-            throw new ProductNotFoundError(productId);
-        }
+        const product = findProduct(inventory, productId);
         displayProduct(product);
+        logSearchOperation(true, productId);
     } catch (error) {
-        alert(error.message); 
+        alert(error.message);
+        logSearchOperation(false, productId);
     }
 });
 

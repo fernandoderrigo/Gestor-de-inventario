@@ -117,6 +117,20 @@ var ProductNotFoundError = /*#__PURE__*/ function(Error1) {
     }
     return ProductNotFoundError;
 }(_wrap_native_super(Error));
+var OutOfStockError = /*#__PURE__*/ function(Error1) {
+    "use strict";
+    _inherits(OutOfStockError, Error1);
+    function OutOfStockError(name) {
+        _class_call_check(this, OutOfStockError);
+        var _this;
+        _this = _call_super(this, OutOfStockError, [
+            'El producto "'.concat(name, '" est\xe1 agotado.')
+        ]);
+        _this.name = "OutOfStockError";
+        return _this;
+    }
+    return OutOfStockError;
+}(_wrap_native_super(Error));
 var inventory = [
     [
         1,
@@ -293,11 +307,23 @@ var editPrice = document.getElementById("editPrice");
 var editQuantity = document.getElementById("editQuantity");
 var saveButton = document.getElementById("saveButton");
 var currentProductId = null;
+function findProduct(inventory, id) {
+    var product = inventory.find(function(p) {
+        return p[0] === id;
+    });
+    if (!product) {
+        throw new ProductNotFoundError(id);
+    }
+    if (product[3] === 0) {
+        throw new OutOfStockError(product[1]);
+    }
+    return product;
+}
 function displayProduct(product) {
     resultList.innerHTML = "";
     var li = document.createElement("li");
     li.classList.add("result-item");
-    li.innerHTML = "\n        <p><strong>ID:</strong> ".concat(product[0], "</p>\n        <p><strong>Nombre:</strong> ").concat(product[1], "</p>\n        <p><strong>Precio:</strong> $").concat(product[2], "</p>\n        <p><strong>Cantidad:</strong> ").concat(product[3], "</p>\n    ");
+    li.innerHTML = "\n        <p><strong>ID:</strong> ".concat(product[0], "</p>\n        <p><strong>Nombre:</strong> ").concat(product[1], "</p>\n        <p><strong>Precio:</strong> $").concat(product[2].toFixed(2), "</p>\n        <p><strong>Cantidad:</strong> ").concat(product[3], "</p>\n    ");
     resultList.appendChild(li);
     resultBox.classList.remove("hidden");
     // Mostrar formulario de edición
@@ -312,23 +338,25 @@ function displayAllProducts(products) {
     products.forEach(function(product) {
         var li = document.createElement("li");
         li.classList.add("result-item");
-        li.innerHTML = "\n            <p><strong>ID:</strong> ".concat(product[0], "</p>\n            <p><strong>Nombre:</strong> ").concat(product[1], "</p>\n            <p><strong>Precio:</strong> $").concat(product[2], "</p>\n            <p><strong>Cantidad:</strong> ").concat(product[3], "</p>\n        ");
+        li.innerHTML = "\n            <p><strong>ID:</strong> ".concat(product[0], "</p>\n            <p><strong>Nombre:</strong> ").concat(product[1], "</p>\n            <p><strong>Precio:</strong> $").concat(product[2].toFixed(2), "</p>\n            <p><strong>Cantidad:</strong> ").concat(product[3], "</p>\n        ");
         productList.appendChild(li);
     });
     allProductsBox.classList.remove("hidden");
 }
+// Registrar operaciones de búsqueda
+function logSearchOperation(success, productId) {
+    var logMessage = success ? "B\xfasqueda exitosa para el producto ID: ".concat(productId) : "B\xfasqueda fallida para el producto ID: ".concat(productId);
+    console.log(logMessage);
+}
 searchButton.addEventListener("click", function() {
     var productId = document.getElementById("productId").valueAsNumber;
     try {
-        var product = inventory.find(function(p) {
-            return p[0] === productId;
-        });
-        if (!product) {
-            throw new ProductNotFoundError(productId);
-        }
+        var product = findProduct(inventory, productId);
         displayProduct(product);
+        logSearchOperation(true, productId);
     } catch (error) {
         alert(error.message);
+        logSearchOperation(false, productId);
     }
 });
 viewAllButton.addEventListener("click", function() {
