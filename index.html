@@ -6,7 +6,6 @@
     <title>Sistema de Gestión de Inventario</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        /* Estilos personalizados del fondo estrellado y estructura general */
         body {
             background-color: #211543;
             overflow: auto;
@@ -26,7 +25,6 @@
             position: relative;
             z-index: 10;
         }
-        /* Estilos de las cajas de contenido y resultados */
         .main-box {
             background-color: #37295a;
             border-radius: 0.5rem;
@@ -69,15 +67,37 @@
             max-height: 300px;
             overflow-y: auto;
         }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            color: #ffffff;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            border: 1px solid #ccc;
+        }
+        .form-group button {
+            background-color: #4caf50;
+            color: white;
+            padding: 0.75rem;
+            width: 100%;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
-    <!-- Fondo de estrellas -->
     <div class="stars"></div>
-    <!-- Contenido principal -->
     <div class="content container mx-auto mt-10 main-box">
         <h1 class="text-4xl font-bold text-center mb-5">Gestión de Inventario de Chocolatería</h1>
-        <!-- Sección de búsqueda de productos -->
+
         <div class="mb-5">
             <label for="productId" class="block text-lg font-medium text-gray-300">Buscar Producto por ID:</label>
             <div class="flex">
@@ -85,20 +105,39 @@
                 <button id="searchButton" class="mt-1 bg-indigo-600 text-white font-bold py-2 px-4 rounded-r-md hover:bg-indigo-700 text-lg">Buscar</button>
             </div>
         </div>
-        <!-- Botón para ver todos los productos -->
+
         <button id="viewAllButton" class="mt-4 w-full bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 text-lg">Ver Todos los Productos</button>
-        <!-- Resultado de la búsqueda -->
+
         <div id="result" class="result-box hidden">
             <h2 class="text-lg font-semibold">Resultado de la Búsqueda:</h2>
             <ul id="resultList" class="mt-2 text-lg text-gray-300"></ul>
+
+            <!-- Formulario de edición -->
+            <div id="editForm" class="mt-5 hidden">
+                <h2 class="text-lg font-semibold text-white mb-2">Editar Producto:</h2>
+                <div class="form-group">
+                    <label for="editName">Nombre:</label>
+                    <input type="text" id="editName" class="mt-1 block w-full">
+                </div>
+                <div class="form-group">
+                    <label for="editPrice">Precio:</label>
+                    <input type="number" id="editPrice" step="0.01" class="mt-1 block w-full">
+                </div>
+                <div class="form-group">
+                    <label for="editQuantity">Cantidad:</label>
+                    <input type="number" id="editQuantity" class="mt-1 block w-full">
+                </div>
+                <div class="form-group">
+                    <button id="saveButton" class="bg-blue-600">Guardar Cambios</button>
+                </div>
+            </div>
         </div>
-        <!-- Todos los productos -->
+
         <div id="allProducts" class="result-box hidden mt-5 all-products-container">
             <h2 class="text-lg font-semibold">Todos los Productos:</h2>
             <ul id="productList" class="mt-2 text-lg text-gray-300"></ul>
         </div>
     </div>
-    <!-- Enlace al script principal -->
     <script src="./dist/src/index.js"></script>
 </body>
 </html>

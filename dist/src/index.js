@@ -283,59 +283,73 @@ var inventory = [
 ];
 var searchButton = document.getElementById("searchButton");
 var viewAllButton = document.getElementById("viewAllButton");
+var resultList = document.getElementById("resultList");
 var resultBox = document.getElementById("result");
 var allProductsBox = document.getElementById("allProducts");
 var productList = document.getElementById("productList");
-var allProductsVisible = false;
-searchButton.addEventListener("click", function() {
-    var productIdInput = document.getElementById("productId");
-    var productId = parseInt(productIdInput.value);
-    var product = inventory.find(function(p) {
-        return p[0] === productId;
-    });
-    var resultList = document.getElementById("resultList");
+var editForm = document.getElementById("editForm");
+var editName = document.getElementById("editName");
+var editPrice = document.getElementById("editPrice");
+var editQuantity = document.getElementById("editQuantity");
+var saveButton = document.getElementById("saveButton");
+var currentProductId = null;
+function displayProduct(product) {
     resultList.innerHTML = "";
-    if (product) {
-        // Crear un contenedor para el resultado
-        var resultContainer = document.createElement("div");
-        resultContainer.classList.add("result-item");
-        var idItem = document.createElement("div");
-        idItem.textContent = "ID: ".concat(product[0]);
-        var nameItem = document.createElement("div");
-        nameItem.textContent = "Nombre: ".concat(product[1]);
-        var priceItem = document.createElement("div");
-        priceItem.textContent = "Precio: $".concat(product[2].toFixed(2));
-        var quantityItem = document.createElement("div");
-        quantityItem.textContent = "Cantidad: ".concat(product[3]);
-        // Agregar los elementos al contenedor
-        resultContainer.appendChild(idItem);
-        resultContainer.appendChild(nameItem);
-        resultContainer.appendChild(priceItem);
-        resultContainer.appendChild(quantityItem);
-        // Agregar el contenedor a la lista de resultados
-        resultList.appendChild(resultContainer);
-        resultBox.classList.remove("hidden");
-    } else {
-        resultList.innerHTML = "";
-        var errorItem = document.createElement("li");
-        errorItem.textContent = "Producto con ID ".concat(productId, " no encontrado.");
-        resultList.appendChild(errorItem);
-        resultBox.classList.remove("hidden");
+    var li = document.createElement("li");
+    li.classList.add("result-item");
+    li.innerHTML = "\n        <p><strong>ID:</strong> ".concat(product[0], "</p>\n        <p><strong>Nombre:</strong> ").concat(product[1], "</p>\n        <p><strong>Precio:</strong> $").concat(product[2], "</p>\n        <p><strong>Cantidad:</strong> ").concat(product[3], "</p>\n    ");
+    resultList.appendChild(li);
+    resultBox.classList.remove("hidden");
+    // Mostrar formulario de edición
+    editForm.classList.remove("hidden");
+    currentProductId = product[0];
+    editName.value = product[1];
+    editPrice.value = product[2].toString();
+    editQuantity.value = product[3].toString();
+}
+function displayAllProducts(products) {
+    productList.innerHTML = "";
+    products.forEach(function(product) {
+        var li = document.createElement("li");
+        li.classList.add("result-item");
+        li.innerHTML = "\n            <p><strong>ID:</strong> ".concat(product[0], "</p>\n            <p><strong>Nombre:</strong> ").concat(product[1], "</p>\n            <p><strong>Precio:</strong> $").concat(product[2], "</p>\n            <p><strong>Cantidad:</strong> ").concat(product[3], "</p>\n        ");
+        productList.appendChild(li);
+    });
+    allProductsBox.classList.remove("hidden");
+}
+searchButton.addEventListener("click", function() {
+    var productId = document.getElementById("productId").valueAsNumber;
+    try {
+        var product = inventory.find(function(p) {
+            return p[0] === productId;
+        });
+        if (!product) {
+            throw new ProductNotFoundError(productId);
+        }
+        displayProduct(product);
+    } catch (error) {
+        alert(error.message);
     }
 });
 viewAllButton.addEventListener("click", function() {
-    productList.innerHTML = "";
-    inventory.forEach(function(product) {
-        var listItem = document.createElement("li");
-        listItem.textContent = "ID: ".concat(product[0], ", Nombre: ").concat(product[1], ", Precio: $").concat(product[2].toFixed(2), ", Cantidad: ").concat(product[3]);
-        productList.appendChild(listItem);
+    displayAllProducts(inventory);
+});
+saveButton.addEventListener("click", function() {
+    if (currentProductId === null) return;
+    var updatedName = editName.value;
+    var updatedPrice = parseFloat(editPrice.value);
+    var updatedQuantity = parseInt(editQuantity.value);
+    var productIndex = inventory.findIndex(function(p) {
+        return p[0] === currentProductId;
     });
-    allProductsVisible = !allProductsVisible;
-    if (allProductsVisible) {
-        allProductsBox.classList.remove("hidden");
-        viewAllButton.textContent = "Ocultar Productos";
-    } else {
-        allProductsBox.classList.add("hidden");
-        viewAllButton.textContent = "Ver Todos los Productos";
+    if (productIndex !== -1) {
+        inventory[productIndex] = [
+            currentProductId,
+            updatedName,
+            updatedPrice,
+            updatedQuantity
+        ];
+        alert("Producto actualizado correctamente.");
+        displayProduct(inventory[productIndex]);
     }
 });

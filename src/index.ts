@@ -39,72 +39,84 @@ const inventory: Product[] = [
 
 const searchButton = document.getElementById("searchButton") as HTMLButtonElement;
 const viewAllButton = document.getElementById("viewAllButton") as HTMLButtonElement;
+const resultList = document.getElementById("resultList") as HTMLUListElement;
 const resultBox = document.getElementById("result") as HTMLDivElement;
 const allProductsBox = document.getElementById("allProducts") as HTMLDivElement;
 const productList = document.getElementById("productList") as HTMLUListElement;
 
-let allProductsVisible = false;
+const editForm = document.getElementById("editForm") as HTMLDivElement;
+const editName = document.getElementById("editName") as HTMLInputElement;
+const editPrice = document.getElementById("editPrice") as HTMLInputElement;
+const editQuantity = document.getElementById("editQuantity") as HTMLInputElement;
+const saveButton = document.getElementById("saveButton") as HTMLButtonElement;
+
+let currentProductId: number | null = null;
+
+function displayProduct(product: Product): void {
+    resultList.innerHTML = "";
+    const li = document.createElement("li");
+    li.classList.add("result-item");
+    li.innerHTML = `
+        <p><strong>ID:</strong> ${product[0]}</p>
+        <p><strong>Nombre:</strong> ${product[1]}</p>
+        <p><strong>Precio:</strong> $${product[2]}</p>
+        <p><strong>Cantidad:</strong> ${product[3]}</p>
+    `;
+    resultList.appendChild(li);
+    resultBox.classList.remove("hidden");
+
+    // Mostrar formulario de edición
+    editForm.classList.remove("hidden");
+    currentProductId = product[0];
+    editName.value = product[1];
+    editPrice.value = product[2].toString();
+    editQuantity.value = product[3].toString();
+}
+
+function displayAllProducts(products: Product[]): void {
+    productList.innerHTML = "";
+    products.forEach((product) => {
+        const li = document.createElement("li");
+        li.classList.add("result-item");
+        li.innerHTML = `
+            <p><strong>ID:</strong> ${product[0]}</p>
+            <p><strong>Nombre:</strong> ${product[1]}</p>
+            <p><strong>Precio:</strong> $${product[2]}</p>
+            <p><strong>Cantidad:</strong> ${product[3]}</p>
+        `;
+        productList.appendChild(li);
+    });
+    allProductsBox.classList.remove("hidden");
+}
 
 searchButton.addEventListener("click", () => {
-    const productIdInput = document.getElementById("productId") as HTMLInputElement;
-    const productId = parseInt(productIdInput.value);
-    
-    const product = inventory.find(p => p[0] === productId);
-    
-    const resultList = document.getElementById("resultList") as HTMLUListElement;
-    resultList.innerHTML = "";
-
-    if (product) {
-
-        const resultContainer = document.createElement("div");
-        resultContainer.classList.add("result-item");
-
-        const idItem = document.createElement("div");
-        idItem.textContent = `ID: ${product[0]}`;
-        
-        const nameItem = document.createElement("div");
-        nameItem.textContent = `Nombre: ${product[1]}`;
-        
-        const priceItem = document.createElement("div");
-        priceItem.textContent = `Precio: $${product[2].toFixed(2)}`;
-        
-        const quantityItem = document.createElement("div");
-        quantityItem.textContent = `Cantidad: ${product[3]}`;
-
-
-        resultContainer.appendChild(idItem);
-        resultContainer.appendChild(nameItem);
-        resultContainer.appendChild(priceItem);
-        resultContainer.appendChild(quantityItem);
-
-
-        resultList.appendChild(resultContainer);
-
-        resultBox.classList.remove("hidden");
-    } else {
-        resultList.innerHTML = "";
-        const errorItem = document.createElement("li");
-        errorItem.textContent = `Producto con ID ${productId} no encontrado.`;
-        resultList.appendChild(errorItem);
-        resultBox.classList.remove("hidden");
+    const productId = (document.getElementById("productId") as HTMLInputElement).valueAsNumber;
+    try {
+        const product = inventory.find(p => p[0] === productId);
+        if (!product) {
+            throw new ProductNotFoundError(productId);
+        }
+        displayProduct(product);
+    } catch (error) {
+        alert(error.message); 
     }
 });
 
 viewAllButton.addEventListener("click", () => {
-    productList.innerHTML = "";
-    inventory.forEach(product => {
-        const listItem = document.createElement("li");
-        listItem.textContent = `ID: ${product[0]}, Nombre: ${product[1]}, Precio: $${product[2].toFixed(2)}, Cantidad: ${product[3]}`;
-        productList.appendChild(listItem);
-    });
-    
-    allProductsVisible = !allProductsVisible;
+    displayAllProducts(inventory);
+});
 
-    if (allProductsVisible) {
-        allProductsBox.classList.remove("hidden");
-        viewAllButton.textContent = "Ocultar Productos";
-    } else {
-        allProductsBox.classList.add("hidden");
-        viewAllButton.textContent = "Ver Todos los Productos";
+saveButton.addEventListener("click", () => {
+    if (currentProductId === null) return;
+
+    const updatedName = editName.value;
+    const updatedPrice = parseFloat(editPrice.value);
+    const updatedQuantity = parseInt(editQuantity.value);
+
+    const productIndex = inventory.findIndex(p => p[0] === currentProductId);
+    if (productIndex !== -1) {
+        inventory[productIndex] = [currentProductId, updatedName, updatedPrice, updatedQuantity];
+        alert("Producto actualizado correctamente.");
+        displayProduct(inventory[productIndex]);
     }
 });
